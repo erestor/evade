@@ -1,27 +1,18 @@
-
-#import p_init_game_1
-import P_play_game_1
-import P_board_1
-
-#from p_init_game_1 import init_game
-from P_play_game_1 import get_action
+from P_board_1 import Board
+from P_play_game_1 import play_game
+from P_debug import DEBUG_MODE
 
 print("Hello Evade")
 print("For help simply type 'help'")
 
-
-# Global variables
-
-GAME_OVER = False
-turn = 0 #who is on move, later set based on player's' choice
-
 #MAIN
-while not GAME_OVER:
-        
-    if get_action(turn): #file: play_game
-        GAME_OVER = True
+def create_board():
+	if DEBUG_MODE:
+		return Board(4)
+
+	return Board()
+
+play_game(create_board())
                   
 print("TBD aftergame menu")
 print("END")
-
-

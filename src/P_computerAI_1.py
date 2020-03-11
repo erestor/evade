@@ -1,7 +1,7 @@
+from P_debug import DEBUG_MODE
 import numpy as np
 
 # minimax for computer player, func called in computer_1
-DEBUG_MODE = True
 
 def evaluate_possition(move):   #move (only possible!) in format ((1, 2, (0, 2)), [0.0, (1, 2)]) (player, figure, coordinates)(situation on possible postiion, coordinates)
 	value = 0 #expected range from 0 - 100
@@ -50,19 +50,6 @@ def evaluate_possition(move):   #move (only possible!) in format ((1, 2, (0, 2))
 
 
 #evaluate_possition(((1, 2, (0, 2)), [0.0, (1, 2)]))
-
-
-def change_format_move(move): #take input (((1, 1, (0, 3)), [9.0, (1, 3)]) return for move_figure ([1, 2.0, (0, 2)], [1, 0.0, (0, 3)])
-	#support funcion
-	player = (move[0])[0]
-	new_move_after = player, (move[1])[0], (move[1])[1]
-	new_move = move[0], new_move_after
-	#print(new_move_after)
-	#print(new_move)
-	return new_move
-
-#change_format_move(((1, 1, (0, 3)), [9.0, (1, 3)]))
-
 
 #[((1, 2, (0, 2)), [[0.0, (1, 2)]]), ((1, 1, (0, 3)), [[0.0, (1, 2)], [9.0, (1, 3)]])]
 

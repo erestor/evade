@@ -1,3 +1,5 @@
+from P_debug import DEBUG_MODE
+
 import numpy as np
 
 from P_computer_1 import list_of_OK_moves

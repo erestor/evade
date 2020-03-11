@@ -1,16 +1,14 @@
 # all function asking user for input from keybord
 # The file is called by init_game and play_game
 
-DEBUG_MODE = False #remove later when 4*4 will not be needed
+from P_debug import DEBUG_MODE
 
 def ask_type_of_player():
     #to choose a type of player, human or computer
-    correct = False
-    while not correct:
+    while True:
         player_type = input("Select a type of player: for Computer player press 'C', for Human player press 'H' ")
-        if player_type == 'H' or player_type == 'C':
-            correct = True
-            return player_type
+        if player_type.capitalize() == 'H' or player_type.capitalize() == 'C':
+            return player_type.capitalize()
         else:
             print("wrong input")
 
@@ -18,13 +16,11 @@ def ask_type_of_player():
 def select_computer_strength():
     # to choose a strength of computer player
     strength_choices = [1, 2, 3]
-    correct = False
-    while not correct:
+    while True:
         computer_strength = input("How strong should the computer player be? Press '1' for weak, '2' for normal and '3' for strong: ")
         try:
             value = int(computer_strength)
             if value in strength_choices:
-                correct = True
                 return value
             else:
                 print("wrong input")

@@ -1,8 +1,11 @@
+from P_debug import DEBUG_MODE
 import enum
 import numpy as np
 
 import P_board_1
-from P_board_1 import create_board
+from P_board_1 import Board
+from P_player import Player
+from P_player import PlayerColor
 
 '''
 import P_play_game_1
@@ -10,8 +13,6 @@ from P_play_game_1 import send_actual_board
 '''
 # to check the rules before/after a move
 # The file is called only by Play_game
-
-DEBUG_MODE = True
 
 '''
 class MoveCheckResult(enum.Enum):
@@ -168,48 +169,45 @@ def check_end_game(player, board):
     return False
 
 
-def global_check(player, board):
-    #to check if there is a possibility to move with any figure for a player on move
+#def global_check(player: PlayerColor, board: Board):
+#    #to check if there is a possibility to move with any figure for a player on move
     
-    total_list = []
-    if DEBUG_MODE:
-        x = 4 #for smaller size of board
-    else:
-        x = 6
+#    total_list = []
+#    for k in range (0, board.size):
+#        for l in range (0, board.size):
+#            figure = board.get(Coords(k, l))
+#            if player == PlayerColor.white:
+#                if figure.is_black():
 
-    for k in range (0, x):
-        for l in range (0, x):
-            figure = int(board[k][l])
-            if player == 1:
-                if figure == 8 or figure == 9:
+#                    list_moves = [(player, figure, (k , l))] #[(1, 1.0, (0, 0))]
+#                    #print("figure in global check", list_moves)
 
-                    list_moves = [(player, figure, (k , l))] #[(1, 1.0, (0, 0))]
-                    #print("figure in global check", list_moves)
-                    possible_list = is_move_exists(list_moves, board) #([(1, 2.0, (2, 2))], [[0.0, (1, 2)], [0.0, (1, 3)], [0.0, (2, 1)], [0.0, (2, 3)], [0.0, (3, 2)]])
-                    #print("possible list in global check", possible_list)
-                    if len((possible_list)[1]) > 0:
-                        total_list.append(possible_list)
-            else:
-                player == 2
-                if figure == 1 or figure == 2:
+#                    possible_list = is_move_exists(list_moves, board) #([(1, 2.0, (2, 2))], [[0.0, (1, 2)], [0.0, (1, 3)], [0.0, (2, 1)], [0.0, (2, 3)], [0.0, (3, 2)]])
 
-                    list_moves = [(player, figure, (k , l))] #[(1, 1.0, (0, 0))]
-                    #print("figure in global check", list_moves)
-                    possible_list = is_move_exists(list_moves, board) #([(1, 2.0, (2, 2))], [[0.0, (1, 2)], [0.0, (1, 3)], [0.0, (2, 1)], [0.0, (2, 3)], [0.0, (3, 2)]])                   
-                    #print("possible list in global check", possible_list)
+#                    #print("possible list in global check", possible_list)
+#                    if len((possible_list)[1]) > 0:
+#                        total_list.append(possible_list)
+#            else:
+#                player == 2
+#                if figure == 1 or figure == 2:
 
-                    if len((possible_list)[1]) > 0: #was 0...why dif from player 1  ??????????
-                        total_list.append(possible_list)
+#                    list_moves = [(player, figure, (k , l))] #[(1, 1.0, (0, 0))]
+#                    #print("figure in global check", list_moves)
+#                    possible_list = is_move_exists(list_moves, board) #([(1, 2.0, (2, 2))], [[0.0, (1, 2)], [0.0, (1, 3)], [0.0, (2, 1)], [0.0, (2, 3)], [0.0, (3, 2)]])                   
+#                    #print("possible list in global check", possible_list)
 
-    if DEBUG_MODE:
-        print("global_check output /number of figures which can move ", len(total_list))
+#                    if len((possible_list)[1]) > 0: #was 0...why dif from player 1  ??????????
+#                        total_list.append(possible_list)
 
-    if len(total_list) == 0: ###################### fix it
-        print("empty total list")
-        return False
-    if DEBUG_MODE:
-        print("total list", total_list)
-    return total_list 
+#    if DEBUG_MODE:
+#        print("global_check output /number of figures which can move ", len(total_list))
+
+#    if len(total_list) == 0: ###################### fix it
+#        print("empty total list")
+#        return False
+#    if DEBUG_MODE:
+#        print("total list", total_list)
+#    return total_list 
 
 #############################################
 # COMPUTER

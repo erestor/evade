@@ -19,10 +19,14 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="P_cross.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="P_debug.py" />
+    <Compile Include="P_player.py" />
     <Compile Include="P_board_1.py" />
     <Compile Include="P_check_rules_1.py" />
     <Compile Include="P_computerAI_1.py" />
-    <Compile Include="P_computer_1.py" />
     <Compile Include="P_computer_minimax_1.py" />
     <Compile Include="p_init_game_1.py" />
     <Compile Include="P_input_funcs_1.py" />
