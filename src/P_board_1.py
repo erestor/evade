@@ -27,9 +27,13 @@ class Move:
 	def __init__(self, from_coords: Coords, to_coords: Coords):
 		self.from_coords = from_coords
 		self.to_coords = to_coords
+		self.value = 0;
 
 	def is_same_row(self) -> bool:
 		return self.from_coords.x == self.to_coords.x
+
+	def set_value(self, value):
+		self.value = value;
 
 class Board:
 	def __init__(self, size: int = 6):
@@ -160,14 +164,13 @@ class Board:
 		return 1
 
 	def get_best_move(self, ok_moves: list) -> Move:
-		#take a list of OK moves, evaluate them and select best move
-		best_value = 0
 		best_move = Move(0, 0)
 		for move in ok_moves:
-			if self.evaluate_move(move) > best_value:
+			move.set_value(self.evaluate_move(move))
+			if move.value > best_move.value:
 				best_move = move
 
-		return move
+		return best_move
 
 	def play(self, player_color: PlayerColor, strength) -> bool:
 		ok_moves = self.get_all_possible_moves(player_color)
