@@ -179,6 +179,7 @@ class Board:
 		elif strength == 2:
 			move_to_execute = self.get_best_move(ok_moves)
 		else:
+			make_anytree(self)
 			print("AI TBD")
 			#move_figure(board, return[0], return[1]) #return of mimimax called form computer_AI
 			return False
@@ -231,13 +232,3 @@ class Board:
 	def __setRow(self, x, states: list):
 		for y in range(len(states)):
 			self.__set(x, y, states[y])
-
-
-def reverse_move_figure(board, list_before, list_during): #list in format (board, [1, 2.0, (0, 2)], [1, 0.0, (0, 3)]) #player, figure, coordinates
-    figure = list_before[1]
-    figure_on_spot = list_during[1]
-    board[(list_during[2])[0]][(list_during[2])[1]] = figure_on_spot
-    board[(list_before[2])[0]][(list_before[2])[1]] = figure
-    print("board after reverse")
-    print(board)
-    return board

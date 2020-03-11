@@ -2,12 +2,14 @@ from P_debug import DEBUG_MODE
 
 import numpy as np
 
-from P_computer_1 import list_of_OK_moves
-from P_board_1 import create_board
-from P_board_1 import move_figure
-from P_board_1 import reverse_move_figure
-from P_computerAI_1 import return_best_move
-from P_computerAI_1 import evaluate_possition
+def reverse_move_figure(board, list_before, list_during): #list in format (board, [1, 2.0, (0, 2)], [1, 0.0, (0, 3)]) #player, figure, coordinates
+    figure = list_before[1]
+    figure_on_spot = list_during[1]
+    board[(list_during[2])[0]][(list_during[2])[1]] = figure_on_spot
+    board[(list_before[2])[0]][(list_before[2])[1]] = figure
+    print("board after reverse")
+    print(board)
+    return board
 
 #TEMPORARY
 test_board = create_board()
