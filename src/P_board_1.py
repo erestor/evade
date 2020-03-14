@@ -1,39 +1,33 @@
 from P_debug import DEBUG_MODE
-import random
-
-from enum import Enum
 from P_player import PlayerColor
 from P_cross import CrossState
 from P_cross import Cross
+from P_tree import calculate_value_by_minimax
+
+from enum import Enum
+from anytree import AnyNode
+import random
 
 # The file for managing a board
-
-'''
-Meaning of numbers in the game board
-0 empty 
-1 white stone
-2 white king
-8 black stone
-9 black king
-5 frozen position
-'''
 
 class Coords:
 	def __init__(self, x, y):
 		self.x = x;
 		self.y = y;
 
+class UndoInfo(Coords):
+	def __init__(self, x, y, state: CrossState):
+		super().__init__(x, y)
+		self.state = state
+
 class Move:
 	def __init__(self, from_coords: Coords, to_coords: Coords):
 		self.from_coords = from_coords
 		self.to_coords = to_coords
-		self.value = 0;
+		self.value = -100;
 
 	def is_same_row(self) -> bool:
 		return self.from_coords.x == self.to_coords.x
-
-	def set_value(self, value):
-		self.value = value;
 
 class Board:
 	def __init__(self, size: int = 6):
@@ -41,6 +35,8 @@ class Board:
 		self.columns = size
 		for i in range(size * size):
 			self.crosses.append(Cross(CrossState.empty))
+
+		self.undo_stack = []
 
 		if size == 4:
 			# testing board
@@ -58,18 +54,27 @@ class Board:
 		return self.__get(coords.x, coords.y)
 
 	def set(self, coords: Coords, state: CrossState):
+		self.undo_stack.append(UndoInfo(coords.x, coords.y, self.get(coords).state))
 		self.__set(coords.x, coords.y, state)
 
 	def is_empty(self, coords: Coords):
 		return self.get(coords).is_empty()
 
 	def execute(self, move: Move):
+		#each move has two steps
 		if self.is_empty(move.to_coords):
 			self.set(move.to_coords, self.get(move.from_coords).state)
 		else:
 			self.set(move.to_coords, CrossState.frozen)
 
 		self.set(move.from_coords, CrossState.empty)
+
+	def undo_last_move(self):
+		#each move has two undo steps
+		first_half = self.undo_stack.pop()
+		self.__set(first_half.x, first_half.y, first_half.state)
+		second_half = self.undo_stack.pop()
+		self.__set(second_half.x, second_half.y, second_half.state)
 
 	def is_possible_move(self, from_coords: Coords, to_coords: Coords) -> bool:
 		moving_figure = self.get(from_coords)
@@ -121,7 +126,6 @@ class Board:
 
 				total_list = total_list + possible_list
 
-		print('get_all_possible_moves returns ', len(total_list), ' ', player_color.name)
 		return total_list
 
 	def exists_valid_move(self, player_color: PlayerColor) -> bool:
@@ -145,46 +149,86 @@ class Board:
 		else:
 			return target.is_white()
 
-	def evaluate_move(self, move: Move) -> int:
+	def evaluate_move(self, move: Move):
 		source_figure = self.get(move.from_coords)
 		target_figure = self.get(move.to_coords)
+		value = -5
 		if source_figure.is_king():
 			if self.is_win_destination(source_figure, move.to_coords.x):
-				return 100
+				value = 100
 			elif self.is_move_forward(source_figure, move):
-				return 60
+				value = 20
 			elif move.is_same_row():
-				return 50
+				value = 5
 		else:
 			if self.is_freezing_move(source_figure, target_figure):
-				return 80
+				value = 30
 			elif self.is_move_forward(source_figure, move):
-				return 60
+				value = 10
+			elif move.is_same_row():
+				value = 0
 
-		return 1
+		move.value = value
 
 	def get_best_move(self, ok_moves: list) -> Move:
 		best_move = Move(0, 0)
 		for move in ok_moves:
-			move.set_value(self.evaluate_move(move))
+			self.evaluate_move(move)
 			if move.value > best_move.value:
 				best_move = move
 
 		return best_move
 
-	def play(self, player_color: PlayerColor, strength) -> bool:
-		ok_moves = self.get_all_possible_moves(player_color)
-		if strength == 1:
-			move_to_execute = ok_moves[random.randint(0, len(ok_moves) - 1)]
-		elif strength == 2:
-			move_to_execute = self.get_best_move(ok_moves)
-		else:
-			make_anytree(self)
-			print("AI TBD")
-			#move_figure(board, return[0], return[1]) #return of mimimax called form computer_AI
-			return False
+	def get_best_move_minimax(self, player_color: PlayerColor) -> Move:
+		root = AnyNode(id = 'Root', level = 1)
+		self.build_move_tree(root, player_color, max_depth = 4)
 
-		self.execute(move_to_execute)
+		#we have the move tree with evaluated leaves, now calculate all nodes
+		root.value = calculate_value_by_minimax(root)
+
+		#get moves with best value, which is the value of the root node
+		best_moves = []
+		for node in root.children:
+			if node.value == root.value:
+				best_moves.append(node.data)
+
+		return best_moves[random.randint(0, len(best_moves) - 1)]
+
+	def build_move_tree(self, node: AnyNode, next_player_color: PlayerColor, max_depth: int):
+		opposing_players_turn = node.level % 2 == 0
+		if node.level == max_depth:
+			#we've reached a leaf in our tree, evaluate the actual move
+			self.evaluate_move(node.data)
+			node.value = -node.data.value if opposing_players_turn else node.data.value
+			return
+
+		if node.level > 1: #root node with level 1 represents null move
+			self.execute(node.data)
+
+		next_moves = self.get_all_possible_moves(next_player_color)
+		if len(next_moves) == 0:
+			#the next player cannot move, hence this node is a winning node
+			node.value = -1000 if opposing_players_turn else 1000
+		else:
+			for next_move in next_moves:
+				next_move_node = AnyNode(parent = node, data = next_move, level = node.level + 1)
+				self.build_move_tree(next_move_node, next_player_color.get_opposite(), max_depth)
+
+		if node.level > 1:
+			self.undo_last_move()
+
+	def play(self, player_color: PlayerColor, strength) -> bool:
+		if strength > 2:
+			move_to_execute = self.get_best_move_minimax(player_color)
+		else:
+			ok_moves = self.get_all_possible_moves(player_color)
+			if strength == 1:
+				move_to_execute = ok_moves[random.randint(0, len(ok_moves) - 1)]
+			else:
+				move_to_execute = self.get_best_move(ok_moves)
+
+		self.execute(move_to_execute) #saves undo
+		self.undo_stack = [] #but we don't need it
 		return True
 
 	def is_game_over(self) -> bool:

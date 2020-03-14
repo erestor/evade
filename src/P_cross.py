@@ -12,10 +12,8 @@ class CrossState(Enum):
 class Cross:
 	def __init__(self, initalState: CrossState):
 		self.state = initalState
-		self.previousState = CrossState.empty
 
 	def set(self, state: CrossState):
-		self.previousState = self.state
 		self.state = state
 
 	def is_empty(self) -> bool:

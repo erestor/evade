@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{103e677b-0039-44a1-98ac-db491ebccbf5}</ProjectGuid>
     <ProjectHome>src\</ProjectHome>
-    <StartupFile>P_tree.py</StartupFile>
+    <StartupFile>P_main_1.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -22,16 +22,16 @@
     <Compile Include="P_cross.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="P_tree.py" />
     <Compile Include="P_debug.py" />
     <Compile Include="P_player.py" />
     <Compile Include="P_board_1.py" />
-    <Compile Include="P_computerAI_1.py" />
-    <Compile Include="P_computer_minimax_1.py" />
     <Compile Include="p_init_game_1.py" />
     <Compile Include="P_input_funcs_1.py" />
     <Compile Include="P_main_1.py" />
     <Compile Include="P_play_game_1.py" />
+    <Compile Include="P_tree.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>

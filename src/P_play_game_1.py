@@ -1,3 +1,4 @@
+from P_debug import DEBUG_MODE
 from P_input_funcs_1 import ask_input
 from p_init_game_1 import init_game
 from P_player import PlayerColor
@@ -5,14 +6,7 @@ from P_board_1 import Board
 from P_board_1 import Move
 from P_board_1 import Coords
 
-# The file is called only by "main" to deliver "get action"
-
-from P_debug import DEBUG_MODE
-
-counter = 0
-
-
-#input qustions
+#input questions
 q1 = "Select a figure on the ROW: "
 q2 = "Select a figure on the COLUMN: "
 q3 = "Move the figure on the ROW: "
@@ -46,49 +40,33 @@ def get_where_to_move(player_color: PlayerColor, board: Board) -> Move:
 
 	return move
 
-#get_where_to_move(2)
-
 def play_game(board: Board):
-	turn = 0
-	counter = 0
 	players = init_game()
-	print(' ')
+	player_color = PlayerColor.white
+	counter = 0
 
 	while True:
-		if turn == 0:
-			player_color = PlayerColor.white                
-			opponent_has_valid_move = board.exists_valid_move(PlayerColor.black)
-		else:
-			player_color = PlayerColor.black
-			opponent_has_valid_move = board.exists_valid_move(PlayerColor.white)
-
-		if not opponent_has_valid_move: #win by oponent's inability to move
-			print("Player " + player_color.name + " - you win")
-			break #to finish the game
-
-		print("Player: ", player_color, "it's your turn!") #check it !!!
-
+		counter += 1
+		print("Move: " + str(counter))
+		print("Player " + player_color.name + ": it's your turn!")
 		current_player = players[player_color.value]
 		if current_player.is_computer():
-			if not board.play(player_color, current_player.strength):
-				break
+			board.play(player_color, current_player.strength)
 		else:
 			human_move = get_where_to_move(player_color)
 			board.execute(human_move)
 
-		turn += 1
-		counter += 1
-		print("counter", counter)
-		turn = turn % 2
-
 		if board.is_game_over():
-			if board.white_won():
-				print("Player " + PlayerColor.white.name + " - you win")
-			elif board.black_won():
-				print("Player " + PlayerColor.black.name + " - you win")
-			else:
+			if board.is_draw():
 				print("Draw")
+			else:
+				print("Player " + player_color.name + " - you win")
 
+			break
+
+		player_color = player_color.get_opposite()
+		if not board.exists_valid_move(player_color): #the player who should continue cannot - opponent wins
+			print("Player " + player_color.get_opposite().name + " - you win")
 			break
 
 #play_game()
