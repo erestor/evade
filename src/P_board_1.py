@@ -10,10 +10,15 @@ import random
 
 # The file for managing a board
 
+WINNING_MOVE_VALUE = 1000
+
 class Coords:
 	def __init__(self, x, y):
 		self.x = x;
 		self.y = y;
+
+	def to_string(self) -> str:
+		return '(' + str(self.x) + ',' + str(self.y) + ')'
 
 class UndoInfo(Coords):
 	def __init__(self, x, y, state: CrossState):
@@ -40,13 +45,11 @@ class Board:
 
 		if size == 4:
 			# testing board
-			self.__setRow(0, [CrossState.empty, CrossState.white_stone, CrossState.empty, CrossState.white_stone])
-			self.__setRow(1, [CrossState.frozen, CrossState.frozen, CrossState.black_stone, CrossState.frozen])
-			self.__setRow(2, [CrossState.frozen, CrossState.frozen, CrossState.frozen, CrossState.frozen])
-			self.__setRow(3, [CrossState.black_stone, CrossState.empty, CrossState.empty, CrossState.frozen])
+			self.__setRow(0, [CrossState.white_stone, CrossState.white_stone, CrossState.white_king, CrossState.white_stone])
+			self.__setRow(3, [CrossState.black_stone, CrossState.black_king, CrossState.black_stone, CrossState.black_stone])
 	
 		else:
-			# board according the rules
+			# board according to the rules
 			self.__setRow(0, [CrossState.white_stone, CrossState.white_stone, CrossState.white_king, CrossState.white_king, CrossState.white_stone, CrossState.white_stone])
 			self.__setRow(5, [CrossState.black_stone, CrossState.black_stone, CrossState.black_king, CrossState.black_king, CrossState.black_stone, CrossState.black_stone])
 
@@ -155,14 +158,17 @@ class Board:
 		value = -5
 		if source_figure.is_king():
 			if self.is_win_destination(source_figure, move.to_coords.x):
-				value = 100
+				value = WINNING_MOVE_VALUE
 			elif self.is_move_forward(source_figure, move):
 				value = 20
 			elif move.is_same_row():
 				value = 5
 		else:
 			if self.is_freezing_move(source_figure, target_figure):
-				value = 30
+				if target_figure.is_king():
+					value = 80
+				else:
+					value = 30
 			elif self.is_move_forward(source_figure, move):
 				value = 10
 			elif move.is_same_row():
@@ -195,26 +201,27 @@ class Board:
 		return best_moves[random.randint(0, len(best_moves) - 1)]
 
 	def build_move_tree(self, node: AnyNode, next_player_color: PlayerColor, max_depth: int):
-		opposing_players_turn = node.level % 2 == 0
-		if node.level == max_depth:
-			#we've reached a leaf in our tree, evaluate the actual move
+		is_root = node.level == 1; #root node with level 1 represents null move which cannot be executed or evaluated
+		opponent_turn = node.level % 2 == 1
+		if not is_root:
 			self.evaluate_move(node.data)
-			node.value = -node.data.value if opposing_players_turn else node.data.value
-			return
+			if node.level == max_depth or node.data.value == WINNING_MOVE_VALUE:
+				#we've reached a leaf in our tree, assign node value and finish recursion
+				node.value = -node.data.value if opponent_turn else node.data.value
+				return
 
-		if node.level > 1: #root node with level 1 represents null move
 			self.execute(node.data)
 
 		next_moves = self.get_all_possible_moves(next_player_color)
 		if len(next_moves) == 0:
 			#the next player cannot move, hence this node is a winning node
-			node.value = -1000 if opposing_players_turn else 1000
+			node.value = -WINNING_MOVE_VALUE if opponent_turn else WINNING_MOVE_VALUE
 		else:
 			for next_move in next_moves:
 				next_move_node = AnyNode(parent = node, data = next_move, level = node.level + 1)
 				self.build_move_tree(next_move_node, next_player_color.get_opposite(), max_depth)
 
-		if node.level > 1:
+		if not is_root:
 			self.undo_last_move()
 
 	def play(self, player_color: PlayerColor, strength) -> bool:
@@ -227,8 +234,12 @@ class Board:
 			else:
 				move_to_execute = self.get_best_move(ok_moves)
 
+		src = self.get(move_to_execute.from_coords).state
 		self.execute(move_to_execute) #saves undo
+		dst = self.get(move_to_execute.to_coords).state
 		self.undo_stack = [] #but we don't need it
+
+		print(player_color.name + ' played ' + src.name + move_to_execute.from_coords.to_string() + '->' + move_to_execute.to_coords.to_string() + dst.name)
 		return True
 
 	def is_game_over(self) -> bool:
@@ -267,7 +278,7 @@ class Board:
 
 	#private
 
-	def __get(self, x, y):
+	def __get(self, x, y) -> Cross:
 		return self.crosses[x * self.columns + y]
 
 	def __set(self, x, y, state: CrossState):

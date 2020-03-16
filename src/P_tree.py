@@ -11,7 +11,7 @@ def calculate_value_by_minimax(node: AnyNode):
 		child_values = list(map(lambda x: x.value, node.children))
 
 		#application of minimax
-		if node.level % 2 == 0: #opposing player moves
+		if node.level % 2 == 0: #children are opponent moves
 			return min(child_values)
 		else:
 			return max(child_values)

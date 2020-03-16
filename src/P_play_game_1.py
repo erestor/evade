@@ -1,4 +1,3 @@
-from P_debug import DEBUG_MODE
 from P_input_funcs_1 import ask_input
 from p_init_game_1 import init_game
 from P_player import PlayerColor
